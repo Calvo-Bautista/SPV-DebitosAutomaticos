@@ -1,49 +1,60 @@
 # Supervielle Chatbot Demo
 
-Prototipo web local que simula una conversación tipo WhatsApp con **Supervielle Chat** para demostrar el flujo de consulta y gestión de débitos automáticos adheridos a tarjeta de débito.
+Prototipo web local que simula una conversación tipo WhatsApp con **Supervielle Chat** para demostrar flujos de gestión dentro del menú **Tarjetas**.
 
 El proyecto no se conecta a WhatsApp, APIs bancarias ni servicios externos. Usa datos mockeados y está pensado para una exposición presencial o demo funcional en navegador.
 
 ## Finalidad
 
-El prototipo representa la solución **Gestión inteligente de débitos automáticos** dentro del chatbot de WhatsApp de Banco Supervielle.
+El prototipo representa una solución conversacional para:
+
+- Consulta de débitos automáticos adheridos a tarjeta de débito.
+- Baja simulada de débitos automáticos por referencia.
+- Desconocimiento de consumos en tarjeta de débito.
+- Desconocimiento de consumos en tarjeta de crédito.
 
 El recorrido base es:
 
 ```text
-Menú Principal > Tarjetas > Menú Tarjetas > Débitos automáticos
+Menú Principal > Tarjetas > Menú Tarjetas
 ```
 
-La funcionalidad aplica solo a débitos automáticos adheridos a **tarjeta de débito**. No opera sobre cuentas, tarjetas de crédito ni otros productos.
+Dentro de `Menú Tarjetas` se agregan opciones específicas para:
+
+- `Débitos automáticos`
+- `Desconocimiento de consumo` bajo Tarjeta de Crédito
+- `Desconocimiento de consumo` bajo Tarjeta de Débito
 
 ## Fases Simuladas
 
 ### Fase 1
 
-Consulta segura y visibilidad:
+Listado de débitos automáticos:
 
 - Validación inicial por DNI.
 - Acceso por Menú Principal y Menú Tarjetas.
 - Validación biométrica simulada.
-- Generación de PDF informativo con débitos automáticos adheridos.
-- Casos demo: cliente sin débitos, error técnico y biometría fallida.
+- Consulta de listado de débitos automáticos.
+- PDF informativo con adhesiones vigentes.
+- Casos demo: sin registros, error técnico y biometría fallida.
 
 ### Fase 2
 
-Autogestión parcial simulada:
+Desconocimientos en débito:
 
-- Mismo listado de débitos automáticos.
-- Opción para desconocer débito automático con instrucciones de homebanking.
-- Opción para pedir baja ingresando la referencia mock del débito.
-- Aclara que el banco no cancela el servicio ni rescinde el contrato con la empresa asociada.
+- Desconocimiento de débitos automáticos.
+- Desconocimiento de consumos en tarjeta de débito.
+- Selección de consumo reciente de TD.
+- Registro guiado del reclamo.
 
 ### Fase 3
 
-Trazabilidad y estado:
+Estado mensual y crédito:
 
-- Clona el comportamiento de Fase 2.
-- El PDF agrega la columna `Estado`.
-- Estados mockeados: `Pagado`, `No pagado` y `Pendiente de procesamiento`.
+- Estado de pago del débito automático en el mes actual.
+- PDF con columna `Estado`.
+- Desconocimiento de consumos en tarjeta de crédito.
+- Selección de tarjeta de crédito y consumo reciente.
 
 ## Arquitectura
 
@@ -60,31 +71,39 @@ src/
     PdfAttachment.jsx      Tarjeta de adjunto PDF
   data/
     mockDebits.js          Débitos y estados mockeados
+    mockTransactions.js    Tarjetas y consumos recientes mockeados
   utils/
     generatePdf.js         Generador local de PDF sin backend
   main.jsx                 Estado principal, flujo conversacional y render
   styles.css               Estilos globales y layout responsive
 ```
 
-Los assets estáticos viven en `public/`:
+## Datos de Consumos y Reclamos
 
-- `supervielle-chat-logo.jpg`
-- `wallpaper.png`
+Los consumos recientes usan columnas alineadas al proceso operativo observado:
 
-## Funcionamiento
+- Fecha
+- Hora
+- Comercio
+- Importe
+- Cupón o comprobante
+- Tarjeta utilizada
 
-El estado principal vive en `src/main.jsx`:
+En tarjeta de crédito primero se selecciona la tarjeta y luego el consumo. En tarjeta de débito se muestran directamente los consumos recientes de la tarjeta mock.
 
-- `messages`: historial del chat.
-- `currentStep`: etapa del flujo conversacional.
-- `activePhase`: fase seleccionada del bot.
-- `demoMode`: modo normal, sin débitos, error técnico o biometría fallida.
-- `pendingDebitCancel`: espera la referencia del débito para simular la baja.
-- `pdfIncludesStatus`: define si el PDF incluye la columna `Estado`.
+Para desconocimiento de consumo TD/TC, el bot solicita:
 
-Los botones del chat disparan acciones internas. No hay backend ni persistencia real.
+- Mail de contacto para enviar la devolución.
+- Tipo de desconocimiento: `Consumo cuestionado`, `Consumo duplicado`, `Desconocimiento de consumo` u `Otro`.
+- Si la compra está duplicada.
+- Si hubo problema con la entrega del producto.
+- Notas opcionales del cliente.
 
-El PDF se genera en el navegador con `Blob` y contenido PDF construido localmente. Para textos con acentos se usa codificación compatible con `WinAnsiEncoding`.
+El número de reclamo simulado generado es fijo:
+
+```text
+R123456789
+```
 
 ## Stack
 
@@ -97,15 +116,8 @@ El PDF se genera en el navegador con `Blob` y contenido PDF construido localment
 
 ## Cómo correr el proyecto
 
-Instalar dependencias:
-
 ```bash
 npm install
-```
-
-Levantar el servidor local:
-
-```bash
 npm run dev
 ```
 
@@ -121,8 +133,6 @@ http://127.0.0.1:5173/
 npm run build
 ```
 
-El build de producción se genera en `dist/`.
-
 ## Tests
 
 ```bash
@@ -133,7 +143,9 @@ Los tests montan la App en jsdom y verifican que:
 
 - Renderice el selector de fases.
 - El flujo de Fase 1 pueda iniciar.
-- Fase 3 cargue las mismas opciones de gestión que Fase 2.
+- Fase 1 muestre listado de débitos automáticos.
+- Fase 2 muestre desconocimiento de débito automático y consumo TD.
+- Fase 3 agregue estado de débito mensual y consumo TC.
 
 ## Notas de Seguridad
 

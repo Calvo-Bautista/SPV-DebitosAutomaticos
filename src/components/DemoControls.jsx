@@ -1,14 +1,14 @@
 const modes = [
-  { id: 'normal', label: 'Flujo con débitos' },
-  { id: 'noDebits', label: 'Modo sin débitos' },
+  { id: 'normal', label: 'Flujo con registros' },
+  { id: 'noDebits', label: 'Modo sin registros' },
   { id: 'technicalError', label: 'Simular error técnico' },
   { id: 'biometricError', label: 'Biometría fallida' }
 ];
 
 const phases = [
-  { id: 1, label: 'Bot Fase 1', detail: 'Consulta y PDF informativo' },
-  { id: 2, label: 'Bot Fase 2', detail: 'Autogestión parcial simulada' },
-  { id: 3, label: 'Bot Fase 3', detail: 'Trazabilidad y estados' }
+  { id: 1, label: 'Bot Fase 1', detail: 'Listado de débitos automáticos' },
+  { id: 2, label: 'Bot Fase 2', detail: 'Desconocimiento DA y consumos TD' },
+  { id: 3, label: 'Bot Fase 3', detail: 'Estado DA mensual y consumos TC' }
 ];
 
 export function DemoControls({ demoMode, activePhase, onModeChange, onReset, onSelectPhase }) {
@@ -16,9 +16,9 @@ export function DemoControls({ demoMode, activePhase, onModeChange, onReset, onS
     <aside className="demo-controls" aria-label="Controles demo">
       <div>
         <p className="eyebrow">Prototipo local</p>
-        <h1>Gestión inteligente de débitos automáticos</h1>
+        <h1>Gestión de débitos y desconocimientos</h1>
         <p>
-          Simulación visual del recorrido Menú Principal &gt; Tarjetas &gt; Menú Tarjetas &gt; Débitos automáticos.
+          Simulación visual por fases desde el Menú de Tarjetas.
         </p>
       </div>
 
